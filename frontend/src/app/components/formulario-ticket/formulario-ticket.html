@@ -1,0 +1,108 @@
+<section class="formulario-ticket">
+
+  <h2>{{ ticketId ? 'Editar ticket' : 'Nuevo ticket' }}</h2>
+
+  <form
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()">
+
+    <label for="asunto">
+      Asunto
+    </label>
+    <input
+      id="asunto"
+      type="text"
+      formControlName="asunto">
+    @if (formulario.controls.asunto.invalid && formulario.controls.asunto.touched) {
+      <small class="error">El asunto es obligatorio (mínimo 5 caracteres).</small>
+    }
+
+    <label for="solicitante">
+      Solicitante
+    </label>
+    <input
+      id="solicitante"
+      type="text"
+      formControlName="solicitante">
+    @if (formulario.controls.solicitante.invalid && formulario.controls.solicitante.touched) {
+      <small class="error">El solicitante es obligatorio (mínimo 3 caracteres).</small>
+    }
+
+    <label for="descripcion">
+      Descripción
+    </label>
+    <textarea
+      id="descripcion"
+      formControlName="descripcion">
+    </textarea>
+    @if (formulario.controls.descripcion.invalid && formulario.controls.descripcion.touched) {
+      <small class="error">La descripción es obligatoria (mínimo 10 caracteres).</small>
+    }
+
+    <label for="categoria">
+      Categoría
+    </label>
+    <select
+      id="categoria"
+      formControlName="categoria">
+      <option value="Hardware">
+        Hardware
+      </option>
+      <option value="Software">
+        Software
+      </option>
+      <option value="Redes">
+        Redes
+      </option>
+      <option value="Otro">
+        Otro
+      </option>
+    </select>
+
+    <label for="prioridad">
+      Prioridad
+    </label>
+    <select
+      id="prioridad"
+      formControlName="prioridad">
+      <option value="Baja">
+        Baja
+      </option>
+      <option value="Media">
+        Media
+      </option>
+      <option value="Alta">
+        Alta
+      </option>
+    </select>
+
+    <label for="estado">
+      Estado
+    </label>
+    <select
+      id="estado"
+      formControlName="estado">
+      <option value="Abierto">
+        Abierto
+      </option>
+      <option value="En proceso">
+        En proceso
+      </option>
+      <option value="Resuelto">
+        Resuelto
+      </option>
+    </select>
+
+    <button type="submit">
+      {{ ticketId ? 'Guardar cambios' : 'Crear ticket' }}
+    </button>
+
+  </form>
+
+  @if (error()) {
+    <p class="error">
+      {{ error() }}
+    </p>
+  }
+
+</section>

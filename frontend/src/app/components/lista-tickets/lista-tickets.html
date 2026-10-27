@@ -1,0 +1,55 @@
+<section class="lista">
+  <h2>Tickets de soporte</h2>
+
+  @if (cargando()) {
+    <p>Cargando tickets...</p>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (!cargando() && !error() && tickets().length === 0) {
+    <p>No hay tickets registrados.</p>
+  }
+
+  @if (tickets().length > 0) {
+    <table>
+      <thead>
+        <tr>
+          <th>Asunto</th>
+          <th>Solicitante</th>
+          <th>Categoría</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ticket of tickets(); track ticket.id) {
+          <tr>
+            <td>{{ ticket.asunto }}</td>
+            <td>{{ ticket.solicitante }}</td>
+            <td>{{ ticket.categoria }}</td>
+            <td>
+              <span [class]="'etiqueta prioridad-' + ticket.prioridad.toLowerCase()">
+                {{ ticket.prioridad }}
+              </span>
+            </td>
+            <td>
+              <span [class]="'etiqueta estado-' + ticket.estado.toLowerCase().replace(' ', '-')">
+                {{ ticket.estado }}
+              </span>
+            </td>
+            <td>{{ ticket.fechaRegistro | date:'dd-MM-yyyy HH:mm' }}</td>
+            <td>
+              <a [routerLink]="['/editar', ticket.id]">Editar</a>
+              <button type="button" (click)="eliminar(ticket)">Eliminar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

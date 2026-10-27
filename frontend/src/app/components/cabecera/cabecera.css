@@ -1,0 +1,36 @@
+.cabecera {
+  background: #1f3a5f;
+  color: white;
+  padding: 1.2rem 2rem;
+}
+
+.cabecera h1 {
+  margin: 0;
+}
+
+.cabecera p {
+  margin: 0.3rem 0 0;
+}
+
+.menu {
+  display: flex;
+  gap: 1rem;
+  background: #e8edf3;
+  padding: 0.8rem 2rem;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #1f3a5f;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+}
+
+.menu a:hover {
+  background: #d0d9e4;
+}
+
+.menu a.activo {
+  background: #1f3a5f;
+  color: white;
+}
