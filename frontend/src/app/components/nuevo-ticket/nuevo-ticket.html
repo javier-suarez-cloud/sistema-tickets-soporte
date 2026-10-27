@@ -1,0 +1,47 @@
+<section class="formulario">
+  <h2>Registrar ticket</h2>
+
+  <form [formGroup]="formulario" (ngSubmit)="guardar()">
+    <label for="asunto">Asunto</label>
+    <input id="asunto" type="text" formControlName="asunto">
+    @if (formulario.controls.asunto.touched && formulario.controls.asunto.invalid) {
+      <small>Ingrese un asunto de al menos 3 caracteres.</small>
+    }
+
+    <label for="solicitante">Solicitante</label>
+    <input id="solicitante" type="text" formControlName="solicitante">
+    @if (formulario.controls.solicitante.touched && formulario.controls.solicitante.invalid) {
+      <small>El solicitante es obligatorio.</small>
+    }
+
+    <label for="descripcion">Descripción</label>
+    <textarea id="descripcion" formControlName="descripcion"></textarea>
+    @if (formulario.controls.descripcion.touched && formulario.controls.descripcion.invalid) {
+      <small>La descripción es obligatoria.</small>
+    }
+
+    <label for="categoria">Categoría</label>
+    <input id="categoria" type="text" formControlName="categoria">
+    @if (formulario.controls.categoria.touched && formulario.controls.categoria.invalid) {
+      <small>La categoría es obligatoria.</small>
+    }
+
+    <label for="prioridad">Prioridad</label>
+    <select id="prioridad" formControlName="prioridad">
+      <option value="Baja">Baja</option>
+      <option value="Media">Media</option>
+      <option value="Alta">Alta</option>
+    </select>
+
+    <label for="estado">Estado</label>
+    <select id="estado" formControlName="estado">
+      <option value="Abierto">Abierto</option>
+      <option value="En proceso">En proceso</option>
+      <option value="Resuelto">Resuelto</option>
+    </select>
+
+    <button type="submit">Guardar ticket</button>
+  </form>
+
+  @if (error()) { <p class="error">{{ error() }}</p> }
+</section>

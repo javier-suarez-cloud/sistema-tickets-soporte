@@ -1,91 +1,185 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2/promise');
+const db = require('./db');
 
 const app = express();
-const PUERTO = 3000;
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// Pool de conexiones a MySQL (los datos de conexión vienen del archivo .env)
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'soporte_tickets',
+app.get('/', (req, res) => {
+  res.status(200).json({
+    mensaje: 'API Soporte Técnico funcionando'
+  });
 });
 
-const PRIORIDADES = ['Baja', 'Media', 'Alta'];
-const ESTADOS = ['Abierto', 'En proceso', 'Resuelto'];
+app.get('/api/tickets', (req, res) => {
+  const sql = 'SELECT * FROM tickets ORDER BY id DESC';
 
-// Revisa que el ticket traiga los datos obligatorios y valores permitidos
-function validarTicket(t) {
-  const { asunto, solicitante, descripcion, categoria, prioridad, estado } = t;
-  if (!asunto || !solicitante || !descripcion || !categoria) {
-    return 'Faltan datos obligatorios: asunto, solicitante, descripcion y categoria.';
+  db.query(sql, (error, resultados) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        mensaje: 'Error al consultar los tickets'
+      });
+    }
+
+    res.status(200).json(resultados);
+  });
+});
+
+app.get('/api/tickets/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ mensaje: 'ID inválido' });
   }
-  if (!PRIORIDADES.includes(prioridad)) return 'Prioridad no válida.';
-  if (!ESTADOS.includes(estado)) return 'Estado no válido.';
-  return null;
-}
 
-// GET /api/tickets -> lista todos los tickets
-app.get('/api/tickets', async (req, res) => {
-  const [filas] = await pool.query('SELECT * FROM tickets ORDER BY fechaRegistro DESC');
-  res.json(filas);
+  const sql = 'SELECT * FROM tickets WHERE id = ?';
+
+  db.query(sql, [id], (error, resultados) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        mensaje: 'Error al consultar el ticket'
+      });
+    }
+
+    if (resultados.length === 0) {
+      return res.status(404).json({
+        mensaje: 'Ticket no encontrado'
+      });
+    }
+
+    res.status(200).json(resultados[0]);
+  });
 });
 
-// GET /api/tickets/:id -> un ticket
-app.get('/api/tickets/:id', async (req, res) => {
-  const [filas] = await pool.query('SELECT * FROM tickets WHERE id = ?', [req.params.id]);
-  if (filas.length === 0) return res.status(404).json({ mensaje: 'Ticket no encontrado.' });
-  res.json(filas[0]);
-});
-
-// POST /api/tickets -> crea un ticket
-app.post('/api/tickets', async (req, res) => {
-  const error = validarTicket(req.body);
-  if (error) return res.status(400).json({ mensaje: error });
-
+app.post('/api/tickets', (req, res) => {
   const { asunto, solicitante, descripcion, categoria, prioridad, estado } = req.body;
-  const [resultado] = await pool.query(
-    'INSERT INTO tickets (asunto, solicitante, descripcion, categoria, prioridad, estado) VALUES (?, ?, ?, ?, ?, ?)',
-    [asunto, solicitante, descripcion, categoria, prioridad, estado]
-  );
-  const [filas] = await pool.query('SELECT * FROM tickets WHERE id = ?', [resultado.insertId]);
-  res.status(201).json(filas[0]);
+
+  if (!asunto || !solicitante || !descripcion || !categoria || !prioridad || !estado) {
+    return res.status(400).json({
+      mensaje: 'Complete todos los campos obligatorios'
+    });
+  }
+
+  const sql = `
+    INSERT INTO tickets
+    (asunto, solicitante, descripcion, categoria, prioridad, estado)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  const valores = [
+    asunto.trim(),
+    solicitante.trim(),
+    descripcion.trim(),
+    categoria.trim(),
+    prioridad.trim(),
+    estado.trim()
+  ];
+
+  db.query(sql, valores, (error, resultado) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        mensaje: 'Error al registrar el ticket'
+      });
+    }
+
+    res.status(201).json({
+      id: resultado.insertId,
+      asunto: asunto.trim(),
+      solicitante: solicitante.trim(),
+      descripcion: descripcion.trim(),
+      categoria: categoria.trim(),
+      prioridad: prioridad.trim(),
+      estado: estado.trim()
+    });
+  });
 });
 
-// PUT /api/tickets/:id -> actualiza un ticket
-app.put('/api/tickets/:id', async (req, res) => {
-  const error = validarTicket(req.body);
-  if (error) return res.status(400).json({ mensaje: error });
-
+app.put('/api/tickets/:id', (req, res) => {
+  const id = Number(req.params.id);
   const { asunto, solicitante, descripcion, categoria, prioridad, estado } = req.body;
-  const [resultado] = await pool.query(
-    'UPDATE tickets SET asunto = ?, solicitante = ?, descripcion = ?, categoria = ?, prioridad = ?, estado = ? WHERE id = ?',
-    [asunto, solicitante, descripcion, categoria, prioridad, estado, req.params.id]
-  );
-  if (resultado.affectedRows === 0) return res.status(404).json({ mensaje: 'Ticket no encontrado.' });
 
-  const [filas] = await pool.query('SELECT * FROM tickets WHERE id = ?', [req.params.id]);
-  res.json(filas[0]);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ mensaje: 'ID inválido' });
+  }
+
+  if (!asunto || !solicitante || !descripcion || !categoria || !prioridad || !estado) {
+    return res.status(400).json({
+      mensaje: 'Complete todos los campos obligatorios'
+    });
+  }
+
+  const sql = `
+    UPDATE tickets
+    SET asunto = ?, solicitante = ?, descripcion = ?,
+        categoria = ?, prioridad = ?, estado = ?
+    WHERE id = ?
+  `;
+
+  const valores = [
+    asunto.trim(),
+    solicitante.trim(),
+    descripcion.trim(),
+    categoria.trim(),
+    prioridad.trim(),
+    estado.trim(),
+    id
+  ];
+
+  db.query(sql, valores, (error, resultado) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        mensaje: 'Error al actualizar el ticket'
+      });
+    }
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensaje: 'Ticket no encontrado'
+      });
+    }
+
+    res.status(200).json({
+      mensaje: 'Ticket actualizado correctamente'
+    });
+  });
 });
 
-// DELETE /api/tickets/:id -> elimina un ticket
-app.delete('/api/tickets/:id', async (req, res) => {
-  const [resultado] = await pool.query('DELETE FROM tickets WHERE id = ?', [req.params.id]);
-  if (resultado.affectedRows === 0) return res.status(404).json({ mensaje: 'Ticket no encontrado.' });
-  res.status(204).send();
+app.delete('/api/tickets/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ mensaje: 'ID inválido' });
+  }
+
+  const sql = 'DELETE FROM tickets WHERE id = ?';
+
+  db.query(sql, [id], (error, resultado) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        mensaje: 'Error al eliminar el ticket'
+      });
+    }
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensaje: 'Ticket no encontrado'
+      });
+    }
+
+    res.status(200).json({
+      mensaje: 'Ticket eliminado correctamente'
+    });
+  });
 });
 
-// Manejo general de errores (por ejemplo, si MySQL no responde)
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ mensaje: 'Error interno del servidor.' });
-});
-
-app.listen(PUERTO, () => {
-  console.log(`API de tickets escuchando en http://localhost:${PUERTO}`);
+app.listen(PORT, () => {
+  console.log(`API ejecutándose en http://localhost:${PORT}`);
 });

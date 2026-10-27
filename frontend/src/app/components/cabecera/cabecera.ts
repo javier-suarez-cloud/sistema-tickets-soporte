@@ -1,13 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
+  imports: [],
   selector: 'app-cabecera',
-  imports: [RouterLink, RouterLinkActive],
+  styleUrl: './cabecera.css',
   templateUrl: './cabecera.html',
-  styleUrl: './cabecera.css'
 })
-export class Cabecera {
-  titulo = 'Sistema de Soporte Técnico';
-  subtitulo = 'Gestión de tickets de atención';
-}
+export class Cabecera {}

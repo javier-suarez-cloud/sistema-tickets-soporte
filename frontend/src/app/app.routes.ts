@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
-import { ListaTickets } from './components/lista-tickets/lista-tickets';
-import { FormularioTicket } from './components/formulario-ticket/formulario-ticket';
+import { Inicio } from './components/inicio/inicio';
+import { Tickets } from './components/tickets/tickets';
+import { NuevoTicket } from './components/nuevo-ticket/nuevo-ticket';
+import { EditarTicket } from './components/editar-ticket/editar-ticket';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'tickets', pathMatch: 'full' },
-  { path: 'tickets', component: ListaTickets },
-  { path: 'nuevo', component: FormularioTicket },
-  { path: 'editar/:id', component: FormularioTicket },
-  { path: '**', redirectTo: 'tickets' }
+  { path: '', component: Inicio },
+  { path: 'tickets', component: Tickets },
+  { path: 'nuevo-ticket', component: NuevoTicket },
+  { path: 'editar-ticket/:id', component: EditarTicket },
+  { path: '**', redirectTo: '' }
 ];

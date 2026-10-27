@@ -1,8 +1,1 @@
-:host {
-  display: block;
-  font-family: Arial, sans-serif;
-}
-
-.contenido-principal {
-  padding: 1.5rem 2rem;
-}
+main { min-height: 70vh; }

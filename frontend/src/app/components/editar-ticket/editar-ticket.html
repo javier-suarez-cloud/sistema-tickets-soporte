@@ -1,0 +1,41 @@
+<section class="formulario">
+  <h2>Editar ticket</h2>
+
+  @if (cargando()) { <p>Cargando información...</p> }
+  @if (error()) { <p class="error">{{ error() }}</p> }
+
+  @if (!cargando() && !error()) {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()">
+      <label for="asunto">Asunto</label>
+      <input id="asunto" type="text" formControlName="asunto">
+
+      <label for="solicitante">Solicitante</label>
+      <input id="solicitante" type="text" formControlName="solicitante">
+
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" formControlName="descripcion"></textarea>
+
+      <label for="categoria">Categoría</label>
+      <input id="categoria" type="text" formControlName="categoria">
+
+      <label for="prioridad">Prioridad</label>
+      <select id="prioridad" formControlName="prioridad">
+        <option value="Baja">Baja</option>
+        <option value="Media">Media</option>
+        <option value="Alta">Alta</option>
+      </select>
+
+      <label for="estado">Estado</label>
+      <select id="estado" formControlName="estado">
+        <option value="Abierto">Abierto</option>
+        <option value="En proceso">En proceso</option>
+        <option value="Resuelto">Resuelto</option>
+      </select>
+
+      <div class="botones">
+        <button type="submit">Guardar cambios</button>
+        <button class="secundario" type="button" (click)="cancelar()">Cancelar</button>
+      </div>
+    </form>
+  }
+</section>

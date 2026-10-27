@@ -1,0 +1,39 @@
+<section class="contenedor">
+  <h2>Listado de tickets</h2>
+
+  @if (cargando()) {
+    <p>Cargando tickets...</p>
+  }
+
+  @if (error()) {
+    <div class="error">
+      <p>{{ error() }}</p>
+      <button type="button" (click)="cargarTickets()">Reintentar</button>
+    </div>
+  }
+
+  @if (!cargando() && !error()) {
+    <div class="tickets">
+      @for (ticket of tickets(); track ticket.id) {
+        <article class="ticket">
+          <h3>{{ ticket.asunto }}</h3>
+          <p><strong>Solicitante:</strong> {{ ticket.solicitante }}</p>
+          <p><strong>Descripción:</strong> {{ ticket.descripcion }}</p>
+          <p><strong>Categoría:</strong> {{ ticket.categoria }}</p>
+          <p><strong>Fecha:</strong> {{ ticket.fechaRegistro | date:'dd-MM-yyyy HH:mm' }}</p>
+
+          <p><strong>Prioridad:</strong>&ngsp;<span [class]="'prioridad-' + ticket.prioridad.toLowerCase()">{{ ticket.prioridad }}</span></p>
+          <p><strong>Estado:</strong>&ngsp;<span [class]="'estado-' + ticket.estado.toLowerCase().replace(' ', '-')">{{ ticket.estado }}</span></p>
+
+          <div class="acciones">
+            <button type="button" (click)="editar(ticket.id)">Editar</button>
+            <button class="eliminar" type="button"
+                    (click)="eliminar(ticket.id)">Eliminar</button>
+          </div>
+        </article>
+      } @empty {
+        <p>No existen tickets registrados.</p>
+      }
+    </div>
+  }
+</section>

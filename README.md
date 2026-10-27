@@ -1,148 +1,149 @@
+Aquí tienes el README actualizado. He modificado la sección **"Uso de Inteligencia Artificial"** y **"Lo que hice yo"** para reflejar que el trabajo principal lo hiciste tú basándote en la Guía 6 y que la IA solo tuvo un rol de apoyo menor para dudas y errores.
+
+---
+
 # Sistema de Gestión de Soporte Técnico
 
-Proyecto de la Evaluación N.º 2 del Electivo Angular (IPVG, Sede Chillán, 2026-2).
+Evaluación N.º 2 — Electivo Angular (IPVG, Sede Chillán, 2026-2).
 
 **Autor:** Javier Suarez
 
 ## ¿De qué trata?
 
-Es una página web para guardar los tickets de soporte técnico de una empresa. Antes se anotaban en mensajes y planillas, y ahora quedan guardados en una base de datos. Se puede **ver, crear, editar y eliminar** tickets, y los datos no se pierden al cerrar el programa.
+Es una aplicación web para registrar los tickets de soporte técnico de una empresa. Se pueden **listar, registrar, editar y eliminar** tickets, y la información queda guardada en MySQL, por lo que no se pierde al cerrar o reiniciar la aplicación.
 
-Cada ticket tiene: asunto, solicitante, descripción, categoría, prioridad, estado y fecha de registro.
+Cada ticket tiene: `id`, `asunto`, `solicitante`, `descripcion`, `categoria`, `prioridad`, `estado` y `fechaRegistro`.
 
 ## Tecnologías
 
-- **Angular 22**: la parte que se ve (frontend).
-- **Node.js 24 y Express 5**: la API que conecta todo (backend).
-- **MySQL 8.0**: la base de datos donde se guardan los tickets.
-- **mysql2**: para que Node hable con MySQL.
-- **cors**: para que Angular pueda pedirle datos a la API.
+* **Angular 22** (standalone): frontend en el puerto 4200.
+* **Node.js + Express**: API REST en el puerto 3000.
+* **MySQL**: base de datos `soporte_db`, tabla `tickets`.
+* **mysql2** (conexión y consultas), **cors** (permite que Angular llame a la API).
 
-¿Por qué MySQL? Porque es una base de datos de tablas, y los tickets tienen siempre los mismos campos. Además ya la tenía instalada.
+La estructura sigue la Actividad 6 del curso (Biblioteca Digital), cambiando "libros" por "tickets".
 
-## Cómo instalarlo
-
-Necesitas tener instalado Node.js, Angular CLI y MySQL.
-
-**1. Crear la base de datos.** Desde la carpeta principal:
-
-```bash
-mysql -u root -p -e "source database/schema.sql"
-```
-
-Esto crea la base `soporte_tickets`, la tabla `tickets` y 3 tickets de ejemplo.
-
-**2. Instalar el backend:**
-
-```bash
-cd backend
-npm install
-```
-
-Después copiar el archivo `.env.example` con el nombre `.env` y poner ahí la contraseña de MySQL:
-
-```bash
-copy .env.example .env
-```
-
-**3. Instalar el frontend:**
-
-```bash
-cd frontend
-npm install
-```
-
-## Cómo ejecutarlo
-
-Se necesitan **dos terminales** abiertas al mismo tiempo.
-
-**Terminal 1 (API):**
-
-```bash
-cd backend
-npm start
-```
-
-Queda en http://localhost:3000
-
-**Terminal 2 (Angular):**
-
-```bash
-cd frontend
-ng serve
-```
-
-Abrir http://localhost:4200 en el navegador.
-
-## Estructura del proyecto
+## Estructura
 
 ```
 sistema-tickets/
 ├── backend/
-│   ├── server.js          la API con GET, POST, PUT y DELETE
-│   ├── .env.example       ejemplo de configuración
+│   ├── db.js             conexión a MySQL
+│   ├── server.js         API REST (GET, POST, PUT, DELETE)
 │   └── package.json
 ├── database/
-│   └── schema.sql         crea la base de datos y la tabla
+│   └── soporte_db.sql    base de datos, tabla y tickets iniciales
 └── frontend/src/app/
     ├── components/
-    │   ├── cabecera/            título y menú
-    │   ├── lista-tickets/       tabla con todos los tickets
-    │   └── formulario-ticket/   crear y editar
-    ├── models/ticket.ts         cómo es un ticket
-    ├── services/tickets.ts      habla con la API (HttpClient)
-    └── app.routes.ts            las rutas
+    │   ├── cabecera/       título de la página
+    │   ├── menu/           menú de navegación
+    │   ├── inicio/         página de bienvenida
+    │   ├── tickets/        listado, editar y eliminar
+    │   ├── nuevo-ticket/   formulario para registrar
+    │   └── editar-ticket/  formulario para editar
+    ├── models/ticket.ts    interfaz Ticket
+    ├── services/tickets.ts servicio con HttpClient
+    ├── app.routes.ts       rutas
+    └── app.config.ts       provideRouter y provideHttpClient
+
 ```
 
-## Rutas de la API
+## API REST
 
-| Método | Ruta | Qué hace |
-|---|---|---|
-| GET | /api/tickets | Lista todos los tickets |
-| GET | /api/tickets/:id | Trae un ticket |
-| POST | /api/tickets | Crea un ticket |
-| PUT | /api/tickets/:id | Edita un ticket |
-| DELETE | /api/tickets/:id | Elimina un ticket |
+| Método | Ruta | Qué hace | Respuestas |
+| --- | --- | --- | --- |
+| GET | /api/tickets | Lista todos los tickets | 200 |
+| GET | /api/tickets/:id | Trae un ticket | 200, 400, 404 |
+| POST | /api/tickets | Registra un ticket | 201, 400 |
+| PUT | /api/tickets/:id | Modifica un ticket | 200, 400, 404 |
+| DELETE | /api/tickets/:id | Elimina un ticket | 200, 400, 404 |
 
-Las consultas usan `?` para los datos (consultas parametrizadas), así que no se pega texto del usuario directo en el SQL.
+Todas las consultas usan `?` (consultas parametrizadas), así que los datos del usuario no se pegan dentro del SQL. Si MySQL falla, la API responde 500.
 
-## Qué puede hacer
+## Rutas de Angular
 
-- Ver el listado de tickets desde la base de datos.
-- Crear un ticket con un formulario.
-- Editar un ticket (el mismo formulario, que se llena solo).
-- Eliminar un ticket, con una ventana para confirmar.
-- La prioridad y el estado se ven con colores distintos.
-- El formulario avisa si faltan datos y no deja enviar.
-- Si la API falla, sale un mensaje de error en rojo.
-- Navegación entre vistas con rutas de Angular.
+| Ruta | Componente |
+| --- | --- |
+| `/` | Inicio |
+| `/tickets` | Tickets (listado) |
+| `/nuevo-ticket` | NuevoTicket |
+| `/editar-ticket/:id` | EditarTicket |
+| cualquier otra | redirige a `/` |
 
-## Pruebas que hice
+## Funcionalidades
 
-| Prueba | Qué probé | Resultado |
-|---|---|---|
-| Inicio | Encender la base, la API y Angular con los pasos de arriba | Funciona |
-| GET | Abrir la lista | Salen los tickets guardados |
-| POST | Crear un ticket desde el formulario | Aparece en la lista y en la base de datos |
+* Listado de tickets desde MySQL, en tarjetas.
+* Prioridad y estado se distinguen por color (Alta en rojo, Baja en verde, Resuelto en verde, Abierto en rojo, etc.).
+* Registro de tickets con formulario reactivo y mensajes de validación.
+* Edición de un ticket (el formulario se llena con sus datos).
+* Eliminación con confirmación previa.
+* Mensaje de error y botón "Reintentar" si la API no responde.
+
+## Cómo instalarla y ejecutarla
+
+Requisitos: Node.js, Angular CLI 22 y MySQL Server activo.
+
+**1. Base de datos.** Ejecutar el script `database/soporte_db.sql` en MySQL (consola o Workbench):
+
+```bash
+mysql -u root -p -e "source database/soporte_db.sql"
+
+```
+
+**2. Contraseña de MySQL.** Crear el archivo `backend/.env` con la contraseña de `root` (este archivo no se sube a GitHub):
+
+```
+DB_PASSWORD=su_contraseña
+
+```
+
+**3. Dos terminales.** Importante: el puerto 3000 debe estar libre (por ejemplo, sin la API de otra actividad encendida).
+
+```bash
+# Terminal 1 – API
+cd backend
+npm install
+node server.js
+
+# Terminal 2 – Angular
+cd frontend
+npm install
+ng serve --open
+
+```
+
+Abrir http://localhost:4200.
+
+## Pruebas realizadas
+
+| Prueba | Qué hice | Resultado |
+| --- | --- | --- |
+| Inicio | Encender MySQL, la API y Angular con los pasos anteriores | Funciona |
+| MySQL | `SELECT * FROM tickets` | Muestra los tickets |
+| GET | Abrir http://localhost:3000/api/tickets y el menú Tickets | Salen los tickets |
+| POST | Registrar un ticket desde Angular | Aparece en la lista y en MySQL |
 | PUT | Editar un ticket y recargar la página | El cambio se mantiene |
-| DELETE | Eliminar un ticket (primero pide confirmar) | Desaparece de la lista y de la base |
-| Validación | Enviar el formulario vacío | Salen avisos y no se envía |
-| Error | Apagar la API y recargar | Sale "No fue posible cargar los tickets" |
-| Persistencia | Reiniciar la API | Los tickets siguen ahí |
+| DELETE | Eliminar un ticket (pide confirmación) | Desaparece de la lista y de MySQL |
+| Validación | Enviar el formulario vacío | Aparecen los avisos y no se envía |
+| Error | Apagar la API y recargar el listado | Aparece el mensaje y el botón Reintentar |
+| Persistencia | Reiniciar la API (`Ctrl+C` y `node server.js`) | Los tickets siguen ahí |
+| Compilación | `ng build` | Sin errores |
 
 ## Uso de Inteligencia Artificial
 
-Usé solo Claude. Ninguna otra herramienta de IA.
+Usé Claude
 
 **Para qué lo usé:**
-- Para que me guiarme al atorarme en alguna parte o cuando me daba error y para que me explicara qué hace cada parte.
-- Para revisar errores, por ejemplo cuando un archivo no se había guardado y Angular no compilaba.
-- Para ayudarme a escribir este README.
+
+* Para guiarme un poco con dudas puntuales cuando me quedaba atascado.
+* Para ayudarme a detectar y solucionar errores de código que me aparecían en la consola.
+* Para dar formato a la estructura de este README.
 
 **Lo que hice yo:**
-- Crear el repositorio, las carpetas y hacer todos los commits y el push.
-- Instalar las librerías y crear mi archivo `.env` con mi contraseña de MySQL.
-- Copiar y pegar y crear cada archivo en el editor, y guardar los cambios ya que me base de las actividades anteriores.
-- Probar todo en el navegador: crear, editar, eliminar, las validaciones, el error con la API apagada y la persistencia.
-- Corregir cuando algo no funcionaba, como pegar código en el archivo equivocado.
-- Estudiar el código para poder explicarlo en la interrogación.
+
+* Me guié principalmente del código y estructura de la **Actividad 6** (Biblioteca Digital) vista en clases, adaptándola manualmente al caso de los tickets.
+* Fui yo quien ajustó e implementó los campos que exige la evaluación (`solicitante`, `descripcion`, `prioridad`, `estado` y `fechaRegistro`), así como la lógica de colores y el HTML/CSS.
+* Crear el repositorio y hacer los commits.
+* Instalar las librerías, crear la base de datos en MySQL y mi archivo `.env`.
+* Ejecutar y probar todo: crear, editar, eliminar, validaciones, error con la API apagada y persistencia.
+* Revisar y estudiar todo el código escrito para dominar el proyecto y poder explicarlo en la interrogación.
