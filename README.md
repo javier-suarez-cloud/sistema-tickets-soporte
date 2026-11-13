@@ -1,7 +1,3 @@
-Aquí tienes el README actualizado. He modificado la sección **"Uso de Inteligencia Artificial"** y **"Lo que hice yo"** para reflejar que el trabajo principal lo hiciste tú basándote en la Guía 6 y que la IA solo tuvo un rol de apoyo menor para dudas y errores.
-
----
-
 # Sistema de Gestión de Soporte Técnico
 
 Evaluación N.º 2 — Electivo Angular (IPVG, Sede Chillán, 2026-2).
